@@ -1,0 +1,21 @@
+---
+- hosts: 127.0.0.1
+  vars:
+    description: “I changed this”
+  remote_user: root
+  tasks:
+  - name: install quagga
+    apt: name=quagga state=present
+  - name: enable bgp
+    template: src=daemons.j2 dest=/etc/quagga/daemons
+    notify:
+    - restart quagga
+  - name: write the quagga config file
+    template: src=quagga.j2 dest=/etc/quagga/Quagga.conf
+    notify:
+    - restart quagga
+  - name: ensure quagga is running
+    service: name=quagga state=started
+  handlers:
+    - name: restart quagga
+      service: name=quagga state=restarted
